@@ -70,6 +70,11 @@ def callback():
 
 
     #if user hasnt logged in before, save them to our users database
+    #this may randomly break no idea why
+    try:
+        token_info = refresh_token()
+    except:
+        return redirect(url_for("home"))
     sp = spotipy.Spotify(auth=token_info["access_token"])
     id = sp.current_user()["id"]
     user = Users.query.filter_by(id=id).first()
