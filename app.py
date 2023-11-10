@@ -19,10 +19,11 @@ class Users(db.Model):
     id = db.Column(db.String, primary_key=True)
     top_track = db.Column(db.String)
     top_artists  = db.Column(db.String)
+    profile_picture = db.Column(db.String)
 
 class Follows(db.Model):
-    follower_user_id = db.Column(db.Integer, ForeignKey('users.id'), nullable=False, primary_key=True)
-    followed_user_id = db.Column(db.Integer, ForeignKey('users.id'), nullable=False, primary_key=True)
+    follower_user_id = db.Column(db.String, ForeignKey('users.id'), nullable=False, primary_key=True)
+    followed_user_id = db.Column(db.String, ForeignKey('users.id'), nullable=False, primary_key=True)
     follower_user = db.relationship("Users", foreign_keys=[follower_user_id])
     followed_user = db.relationship("Users", foreign_keys=[followed_user_id])
 
@@ -86,6 +87,7 @@ def callback():
 
     sp = spotipy.Spotify(auth=token_info["access_token"])
     id = sp.current_user()["id"]
+    profile_picture = sp.current_user()["images"][0]["url"]
 
     top_artists = sp.current_user_top_artists(limit=5, time_range="medium_term")["items"]
     top_tracks = sp.current_user_top_tracks(limit=1, time_range="medium_term")["items"]
@@ -97,13 +99,17 @@ def callback():
     user = Users.query.filter_by(id=id).first()
 
     if not user:
-        new_user = Users(id=id, top_track = track, top_artists = artists)
+        new_user = Users(id=id, top_track = track, top_artists = artists, profile_picture = profile_picture)
         db.session.add(new_user)
-        db.session.commit()
 
-    #update current users stats anyway
-    user.top_track = track
-    user.top_artists = artists
+    else:
+        #update current users stats anyway
+        # this isnt working at the moment
+        user.top_track = track
+        user.top_artists = artists
+        user.profile_picture = profile_picture
+
+    db.session.commit()
 
     return redirect(url_for("profile",user_id=id))
 
@@ -126,44 +132,26 @@ def home():
 @app.route("/profile/<user_id>")
 def profile(user_id):
     id = check_login()
-    #check if refresh needed
 
-
-    """
-
-
-    try:
-        token_info = refresh_token()
-    except:
-        return redirect(url_for("home"))
-
-
-
-    #allows us to speak to api
-    sp = spotipy.Spotify(auth=token_info["access_token"])
-    id = sp.current_user()["id"]
-
-    top_artists = sp.current_user_top_artists(limit=50, time_range="medium_term")["items"]
-    top_tracks = sp.current_user_top_tracks(limit=50, time_range="medium_term")["items"]
-    #ids for artists
-    artists = [artist["external_urls"]["spotify"].split("artist")[1][1:] for artist in top_artists]
-    tracks = [track["external_urls"]["spotify"].split("track")[1][1:] for track in top_tracks]
-    #above code is for gettimg spotify stuff
-
-    """
-    followed_users = Follows.query.filter_by(follower_user_id=user_id).all()
 
 
 
     user = Users.query.filter_by(id = user_id).first()
+    if not user:
+        return redirect(url_for("home"))
     top_track = user.top_track
     top_artists = str(user.top_artists).split(",")
+    profile_picture = user.profile_picture
+    followed_users = Follows.query.filter_by(follower_user_id=user_id).all()
+
+    #check if following this user
+    following_user = ""
+    if id:
+        following_user = Follows.query.filter_by(follower_user_id = id, followed_user_id = user_id).first()
 
 
 
-
-
-    return render_template("profile.html",top_track = top_track, top_artists=top_artists, followed_users=followed_users ,id = id)
+    return render_template("profile.html",top_track = top_track, top_artists=top_artists, followed_users=followed_users,profile_picture = profile_picture,user_id=user_id,following_user = following_user,Users=Users ,id = id)
 
 
 @app.route("/follow/<following_id>")
@@ -180,13 +168,14 @@ def follow(following_id):
     #checking if user exists or already follow user or following self
     existing_user = Users.query.filter_by(id=following_id).first()
     following_user = Follows.query.filter_by(follower_user_id = follower_id, followed_user_id = following_id).first()
+    if following_user:
+        db.session.delete(following_user)
     if existing_user and not following_user and following_id != follower_id:
-
         new_follows = Follows(follower_user_id = follower_id, followed_user_id = following_id)
         db.session.add(new_follows)
-        db.session.commit()
-    #else there is an error
 
+    #else there is an error
+    db.session.commit()
     return redirect(url_for("profile", user_id =following_id))
 
 
