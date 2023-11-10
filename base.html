@@ -1,0 +1,46 @@
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.navbar {
+  overflow: hidden;
+  background-color: #333;
+}
+
+.navbar a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.navbar a:hover {
+  background-color: red;
+  color: black;
+}
+
+</style>
+
+
+{% if id %}
+  <div class="navbar">
+    <a href="/home">Home</a>
+    <a href="/reviews">Reviews</a>
+    <a href="/articles">Articles</a>
+    <a href="/profile/{{id}}">Profile</a>
+  </div>
+{% else %}
+  <div class="navbar">
+    <a href="/home">Home</a>
+    <a href="/reviews">Reviews</a>
+    <a href="/articles">Articles</a>
+    <a href="/login">Login</a>
+  </div>
+{% endif %}
+
+<div class="container-fluid" style="padding-left:15px">{% block content %}{% endblock %}</div>
