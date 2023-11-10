@@ -17,6 +17,8 @@ db = SQLAlchemy(app)
 
 class Users(db.Model):
     id = db.Column(db.String, primary_key=True)
+    top_track = db.Column(db.String)
+    top_artists  = db.Column(db.String)
 
 class Follows(db.Model):
     follower_user_id = db.Column(db.Integer, ForeignKey('users.id'), nullable=False, primary_key=True)
@@ -52,7 +54,13 @@ def refresh_token():
 #if the user is not logged in, there will be no token in the session as only logged in users have this.
 def check_login():
     if "token_info" in session:
-        return True
+        try:
+            token_info = refresh_token()
+        except:
+            return redirect(url_for("home"))
+        sp = spotipy.Spotify(auth=token_info["access_token"])
+        id = sp.current_user()["id"]
+        return id
     else: return False
 
 #redirects user to spotify login prompt
@@ -75,15 +83,29 @@ def callback():
         token_info = refresh_token()
     except:
         return redirect(url_for("home"))
+
     sp = spotipy.Spotify(auth=token_info["access_token"])
     id = sp.current_user()["id"]
+
+    top_artists = sp.current_user_top_artists(limit=5, time_range="medium_term")["items"]
+    top_tracks = sp.current_user_top_tracks(limit=1, time_range="medium_term")["items"]
+    #ids for artists
+    artists = str([artist["external_urls"]["spotify"].split("artist")[1][1:] for artist in top_artists])[1:-1]
+    track = top_tracks[0]["external_urls"]["spotify"].split("track")[1][1:]
+
+
     user = Users.query.filter_by(id=id).first()
+
     if not user:
-        new_user = Users(id=id)
+        new_user = Users(id=id, top_track = track, top_artists = artists)
         db.session.add(new_user)
         db.session.commit()
 
-    return redirect(url_for("profile"))
+    #update current users stats anyway
+    user.top_track = track
+    user.top_artists = artists
+
+    return redirect(url_for("profile",user_id=id))
 
 
 
@@ -94,16 +116,22 @@ def callback():
 @app.route("/home")
 @app.route("/")
 def home():
-    logged_in = check_login()
+    id = check_login()
 
-    return render_template("home.html", logged_in = logged_in)
+
+    return render_template("home.html", id = id)
 
 
 #profile page route, atm displays some simple user stats fetched from API
-@app.route("/profile")
-def profile():
-    logged_in = check_login()
+@app.route("/profile/<user_id>")
+def profile(user_id):
+    id = check_login()
     #check if refresh needed
+
+
+    """
+
+
     try:
         token_info = refresh_token()
     except:
@@ -113,20 +141,34 @@ def profile():
 
     #allows us to speak to api
     sp = spotipy.Spotify(auth=token_info["access_token"])
+    id = sp.current_user()["id"]
 
     top_artists = sp.current_user_top_artists(limit=50, time_range="medium_term")["items"]
     top_tracks = sp.current_user_top_tracks(limit=50, time_range="medium_term")["items"]
-    id = sp.current_user()["id"]
     #ids for artists
     artists = [artist["external_urls"]["spotify"].split("artist")[1][1:] for artist in top_artists]
     tracks = [track["external_urls"]["spotify"].split("track")[1][1:] for track in top_tracks]
+    #above code is for gettimg spotify stuff
 
-    return render_template("profile.html", artists = artists, tracks=tracks, logged_in = logged_in)
+    """
+    followed_users = Follows.query.filter_by(follower_user_id=user_id).all()
+
+
+
+    user = Users.query.filter_by(id = user_id).first()
+    top_track = user.top_track
+    top_artists = str(user.top_artists).split(",")
+
+
+
+
+
+    return render_template("profile.html",top_track = top_track, top_artists=top_artists, followed_users=followed_users ,id = id)
 
 
 @app.route("/follow/<following_id>")
 def follow(following_id):
-    logged_in = check_login()
+    id = check_login()
         #check if refresh needed
     try:
         token_info = refresh_token()
@@ -145,18 +187,20 @@ def follow(following_id):
         db.session.commit()
     #else there is an error
 
-    return redirect(url_for("profile"))
+    return redirect(url_for("profile", user_id =following_id))
 
 
 @app.route("/reviews")
 def reviews():
-    return redirect(url_for("home"))
+    id = check_login()
+    return render_template("reviews.html", id = id)
 
 
 
 @app.route("/articles")
 def articles():
-    return redirect(url_for("home"))
+    id = check_login()
+    return render_template("articles.html", id = id)
 
 if __name__ == "__main__":
     app.run(debug=True)
