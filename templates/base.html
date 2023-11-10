@@ -4,12 +4,19 @@
 </style>
 
 
-
-<div class="navbar">
-  <a href="/home">Home</a>
-  <a href="/Reviews">Reviews</a>
-  <a href="/Profile">Profile</a>
-  <a href="/Articles">Articles</a>
-</div>
-
+{% if id %}
+  <div class="navbar">
+    <a href="/home">Home</a>
+    <a href="/reviews">Reviews</a>
+    <a href="/articles">Articles</a>
+    <a href="/profile/{{id}}">Profile</a>
+  </div>
+{% else %}
+  <div class="navbar">
+    <a href="/home">Home</a>
+    <a href="/reviews">Reviews</a>
+    <a href="/articles">Articles</a>
+    <a href="/login">Login</a>
+  </div>
+{% endif %}
 <div class="container-fluid">{% block content %}{% endblock %}</div>
