@@ -1,5 +1,28 @@
 
 <style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.navbar {
+  overflow: hidden;
+  background-color: #333;
+}
+
+.navbar a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.navbar a:hover {
+  background-color: red;
+  color: black;
+}
 
 </style>
 
@@ -19,4 +42,5 @@
     <a href="/login">Login</a>
   </div>
 {% endif %}
-<div class="container-fluid">{% block content %}{% endblock %}</div>
+
+<div class="container-fluid" style="padding-left:15px">{% block content %}{% endblock %}</div>
