@@ -75,6 +75,9 @@ def login():
 def callback():
     session.clear()
     token_info = SpotifyOAuthData.get_access_token(request.args.get("code"))
+
+    #issue above. all token info is the same dispite different "code"
+
     session["token_info"] = token_info
 
 
