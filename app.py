@@ -12,7 +12,7 @@ from flask_session import Session
 app = Flask(__name__)
 
 
-#making database schema
+#making database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
@@ -33,10 +33,7 @@ db.create_all()
 
 #inclue secret key so we can later use "sessions" to store spotify data
 #we store all token info in the session
-#2 previous comments arent true now as the token info is stored in the cache_handler
-#i changed this as the session was getting mixed up when multiple users tried to login
 app.secret_key = "secretforsessions"
-#the above line may no longer be necessary but it doesnt cause any issues, so why remove it?
 
 #all the paramaters we pass to spotify to allow me to use API
 #added cache handler should make work for multiple users
@@ -46,13 +43,11 @@ cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
 SpotifyOAuthData = SpotifyOAuth(
     client_id = "95cb7a03a44d445a9c83024b2cb2dab0",
     client_secret = "096f41ea16c545318fc53b15c50c90e4",
-    #redirect_uri = "http://127.0.0.1:5000/callback",
-    redirect_uri = "https://7d48-81-109-105-102.ngrok-free.app/callback",
+    redirect_uri = "http://127.0.0.1:5000/callback",
+    #redirect_uri = "https://7d48-81-109-105-102.ngrok-free.app/callback",
     scope = "user-top-read user-read-private user-read-email",
     cache_handler=cache_handler
 )
-#the above code is the request we have to send to the spotify API to get info. 
-#really shouldnt be storing the client id and client secret in github for security but oh well.
 
 #to keep user logged in, the access token must be refreshed, this is done periodically and automatically
 #every time this function is called, we check if the token is expired - if it is, then we refresh it
@@ -65,10 +60,9 @@ def refresh_token():
         token_info = SpotifyOAuthData.refresh_access_token(token_info["refresh_token"])
     return token_info
 
-#if the user is not logged in, there will be no token in the cache_handler as only logged in users have this.
+#if the user is not logged in, there will be no token in the session as only logged in users have this.
 def check_login():
-    #added this for new cache system
-    #to fix problems with sessions
+    #added this just now for new cache system
     token_info = cache_handler.get_cached_token()
     if token_info:
         try:
@@ -80,7 +74,7 @@ def check_login():
         return id
     else: return False
 
-#redirects user to spotify login prompt, then spotify redirects to /callback
+#redirects user to spotify login prompt
 @app.route("/login")
 def login():
     auth_url = SpotifyOAuthData.get_authorize_url()
@@ -93,17 +87,14 @@ def callback():
     token_info = SpotifyOAuthData.get_access_token(request.args.get("code"))
 
     #issue above. all token info is the same dispite different "code"
-    #this issue is fixed, it was an issue with the session being shared between users when it shouldnt be. 
-    #now used cache handling stuff to fix it
+    #i fixed this isssue now dw
 
     #session["token_info"] = token_info
-    #above is the only session code, this was replaced by cache handling stuff
 
 
 
-    #if user hasnt logged in before, save them to our users table in database
+    #if user hasnt logged in before, save them to our users database
     #this may randomly break no idea why
-    #i No longer think this randomly breaks anymore
     try:
         token_info = refresh_token()
     except:
@@ -116,10 +107,8 @@ def callback():
     top_artists = sp.current_user_top_artists(limit=5, time_range="medium_term")["items"]
     top_tracks = sp.current_user_top_tracks(limit=1, time_range="medium_term")["items"]
     #ids for artists
-    #moved getting the ids into jinja in the html doc/
 
 
-    #catches error, if user doesnt have enough top tracks or a top artist. it just displays nothing - catching the error is easier than checking the db
     try:
         artists = str([artist["external_urls"]["spotify"].split("artist")[1][1:] for artist in top_artists])[1:-1]
     except:
@@ -153,13 +142,53 @@ def callback():
 
 
 #home page route - atm doesnt do anything
-@app.route("/home")
-@app.route("/")
+@app.route("/home", methods=["GET", "POST"])
+@app.route("/",methods=["GET", "POST"])
 def home():
     id = check_login()
 
+    if request.method == "POST":
+        search = request.form.get("search")
+        if search:
+            return redirect(url_for("search_results", search = search))
 
     return render_template("home.html", id = id)
+
+@app.route("/search_results/<search>")
+def search_results(search):
+    id = check_login()
+        #check if refresh needed
+    try:
+        token_info = refresh_token()
+    except:
+        return redirect(url_for("home"))
+    sp = spotipy.Spotify(auth=token_info["access_token"])
+
+    search_results = sp.search(search)["tracks"]["items"]
+
+    return render_template("search_results.html", id=id, search_results=search_results)
+
+
+@app.route("/media/<media_id>")
+def media(media_id):
+    id = check_login()
+        #check if refresh needed
+    try:
+        token_info = refresh_token()
+    except:
+        return redirect(url_for("home"))
+    sp = spotipy.Spotify(auth=token_info["access_token"])
+
+
+    #urn = f"{media_id}"
+    artist = sp.album(media_id)["artists"][0]["external_urls"]["spotify"][32:]
+    genres = sp.artist(artist)["genres"]
+
+
+
+
+
+    return render_template("media.html", id=id, media_id=media_id, artist = artist, genres=genres)
 
 
 #profile page route, atm displays some simple user stats fetched from API
