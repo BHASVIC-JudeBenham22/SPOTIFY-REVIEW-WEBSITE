@@ -4,7 +4,13 @@
 <br></br>
 <form class="d-flex" method="POST" > <input class="form-control mr-2" type="search" placeholder="Search" aria-label="Search" id="search" name="search"> <button class="btn btn-primary" type="submit">Search</button> </form>
 
-<p>hello all the world</p>
-
+<h1>recomended ALBUMS</h1>
+<br></br>
+{%for items in recomendations["tracks"] %}
+  <a href="/media/{{items["album"]["external_urls"]["spotify"][31:]}}">{{items["album"]["name"]}}</a>
+  <br></br>
+  <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{items["album"]["external_urls"]["spotify"][31:]}}?utm_source=generator" width="30%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  <br></br>
+{%endfor%}
 
 {% endblock %}

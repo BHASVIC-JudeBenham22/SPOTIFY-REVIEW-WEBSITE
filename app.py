@@ -146,13 +146,42 @@ def callback():
 @app.route("/",methods=["GET", "POST"])
 def home():
     id = check_login()
+        #check if refresh needed
+    try:
+        token_info = refresh_token()
+    except:
+        return redirect(url_for("home"))
+    sp = spotipy.Spotify(auth=token_info["access_token"])
+
 
     if request.method == "POST":
         search = request.form.get("search")
         if search:
             return redirect(url_for("search_results", search = search))
 
-    return render_template("home.html", id = id)
+    #need to display recomended albums
+
+    #get top top_artists
+    #get the current_user_top_tracks
+    #go in database
+    user = Users.query.filter_by(id = id).first()
+    top_artists = str(user.top_artists).split(",")
+    top_track = [user.top_track]
+    top_artists = [artist.strip()[1:-1] for artist in top_artists][0:2]
+
+    genres = sp.artist(top_artists[0])["genres"]
+    if genres == "":
+        genres = "pop"
+    if top_artists == [] or top_artists == [""]:
+        top_artists = ["06HL4z0CvFAxyc27GXpf02","3TVXtAsR1Inumwj472S9r4"]
+    if top_track == [] or top_track == [""]:
+        top_track = ["7LR85XLWw2yXqKBSI5brbG"]
+
+    recomendations = sp.recommendations(seed_artists=top_artists, seed_genres=genres, seed_tracks=top_track, limit=10, country=None)
+    #this returns songs, then need to get the albums
+
+
+    return render_template("home.html", recomendations = recomendations ,id = id)
 
 @app.route("/search_results/<search>")
 def search_results(search):
