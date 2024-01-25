@@ -4,7 +4,11 @@
 <br></br>
 <form class="d-flex" method="POST" > <input class="form-control mr-2" type="search" placeholder="Search" aria-label="Search" id="search" name="search"> <button class="btn btn-primary" type="submit">Search</button> </form>
 
-<h1>recomended ALBUMS</h1>
+<h1>recomended ALBUMS:</h1>
+
+{% if recomendations == "" %}
+  <p>login to see recomendations</p>
+{% endif %}
 <br></br>
 {%for items in recomendations["tracks"] %}
   <a href="/media/{{items["album"]["external_urls"]["spotify"][31:]}}">{{items["album"]["name"]}}</a>

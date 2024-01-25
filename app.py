@@ -147,11 +147,17 @@ def callback():
 def home():
     id = check_login()
         #check if refresh needed
-    try:
+
+    #try:
+    #    token_info = refresh_token()
+    #except:
+    #    return redirect(url_for("home"))
+
+    if id:
+
         token_info = refresh_token()
-    except:
-        return redirect(url_for("home"))
-    sp = spotipy.Spotify(auth=token_info["access_token"])
+
+        sp = spotipy.Spotify(auth=token_info["access_token"])
 
 
     if request.method == "POST":
@@ -164,20 +170,24 @@ def home():
     #get top top_artists
     #get the current_user_top_tracks
     #go in database
-    user = Users.query.filter_by(id = id).first()
-    top_artists = str(user.top_artists).split(",")
-    top_track = [user.top_track]
-    top_artists = [artist.strip()[1:-1] for artist in top_artists][0:2]
 
-    genres = sp.artist(top_artists[0])["genres"]
-    if genres == "":
-        genres = "pop"
-    if top_artists == [] or top_artists == [""]:
-        top_artists = ["06HL4z0CvFAxyc27GXpf02","3TVXtAsR1Inumwj472S9r4"]
-    if top_track == [] or top_track == [""]:
-        top_track = ["7LR85XLWw2yXqKBSI5brbG"]
+    recomendations = ""
+    if id:
+        user = Users.query.filter_by(id = id).first()
+        top_artists = str(user.top_artists).split(",")
+        top_track = [user.top_track]
+        top_artists = [artist.strip()[1:-1] for artist in top_artists][0:2]
 
-    recomendations = sp.recommendations(seed_artists=top_artists, seed_genres=genres, seed_tracks=top_track, limit=10, country=None)
+        genres = sp.artist(top_artists[0])["genres"]
+
+        if genres == "":
+            genres = "pop"
+        if top_artists == [] or top_artists == [""]:
+            top_artists = ["06HL4z0CvFAxyc27GXpf02","3TVXtAsR1Inumwj472S9r4"]
+        if top_track == [] or top_track == [""]:
+            top_track = ["7LR85XLWw2yXqKBSI5brbG"]
+
+        recomendations = sp.recommendations(seed_artists=top_artists, seed_genres=genres, seed_tracks=top_track, limit=10, country=None)
     #this returns songs, then need to get the albums
 
 
@@ -213,11 +223,14 @@ def media(media_id):
     artist = sp.album(media_id)["artists"][0]["external_urls"]["spotify"][32:]
     genres = sp.artist(artist)["genres"]
 
+    albums = sp.artist_albums( artist, limit=3,)["items"]
+    #[0]["external_urls"]["spotify"][31:]
 
 
 
 
-    return render_template("media.html", id=id, media_id=media_id, artist = artist, genres=genres)
+
+    return render_template("media.html", id=id, media_id=media_id, artist = artist, genres=genres, albums = albums)
 
 
 #profile page route, atm displays some simple user stats fetched from API

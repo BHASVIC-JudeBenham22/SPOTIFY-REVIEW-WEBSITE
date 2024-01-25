@@ -2,17 +2,66 @@
 {% block content%}
 
 
+<style>
+.h2inverse{
+  background-color: #101010;
+  color: #ffffff;
 
+}
+
+.column70 {
+  float: left;
+  width: 65%;
+  padding: 10px;
+}
+.column30 {
+  float: left;
+  width: 30%;
+  padding: 10px;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+</style>
 
 <br></br>
+<div class="column70" style="background-color:#aaa;">
+  <h1 class="h2inverse">Album:</h1>
+  <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{media_id}}?utm_source=generator" width="100%" height="450" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
-<iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{media_id}}?utm_source=generator" width="50%" height="450" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  <br></br>
+  <h1 class="h2inverse" >Genres:</h1>
+  {%for genre in genres%}
+    <p>{{genre}} - </p>
+  {%endfor%}
+</div>
 
-<iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/{{artist}}?utm_source=generator" width="30%" height="450" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+<div class="column30" style="background-color:#aaa;">
+  <h1 class="h2inverse">Artist:</h1>
+  <iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/{{artist}}?utm_source=generator" width="100%" height="450" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
-<h1>Genres:</h1>
-{%for genre in genres%}
-<p>{{genre}} - </p>
-{%endfor%}
+  <br></br>
+  <h1 class="h2inverse" >MORE ALBUMS BY THIS ARTIST:</h1>
+
+  {% for album in albums %}
+    <a href="/media/{{album["external_urls"]["spotify"][31:]}}">{{album["name"]}}</a>
+    <br></br>
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{album["external_urls"]["spotify"][31:]}}?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    <br></br>
+  {% endfor %}
+</div>
+
+
+
 
 {% endblock %}
