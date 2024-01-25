@@ -1,21 +1,23 @@
 {% extends "base.html" %}
 {% block content%}
 
-<p>search results</p>
+
+<div class="column70" style="background-color:#aaa;">
+  <p class="h2inverse">search results</p>
 
 
-<p>albums</p>
+  <p class="h2inverse">albums</p>
 
-{% for search_result in search_results%}
-<br></br>
-
-  {% if not search_result["album"]["external_urls"]["spotify"][31:] in IDs%}
-    <a href="/media/{{search_result["album"]["external_urls"]["spotify"][31:]}}">{{search_result["album"]["name"]}}</a>
-    <br></br>
-    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{search_result["album"]["external_urls"]["spotify"][31:]}}?utm_source=generator" width="50%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-  {% endif %}
+  {% for search_result in search_results%}
+  <br></br>
 
 
+  <a class="h2inverse" href="/media/{{search_result["album"]["external_urls"]["spotify"][31:]}}">{{search_result["album"]["name"]}}</a>
+  <br></br>
+  <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{search_result["album"]["external_urls"]["spotify"][31:]}}?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  {% endfor %}
+</div>
 
-{% endfor %}
+
+
 {% endblock %}

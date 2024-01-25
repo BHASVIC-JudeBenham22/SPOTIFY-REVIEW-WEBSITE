@@ -4,17 +4,18 @@
 <br></br>
 <form class="d-flex" method="POST" > <input class="form-control mr-2" type="search" placeholder="Search" aria-label="Search" id="search" name="search"> <button class="btn btn-primary" type="submit">Search</button> </form>
 
-<h1>recomended ALBUMS:</h1>
+<div class="column70" style="background-color:#aaa;">
+  <h1 class="h2inverse" >recomended ALBUMS:</h1>
 
-{% if recomendations == "" %}
-  <p>login to see recomendations</p>
-{% endif %}
-<br></br>
-{%for items in recomendations["tracks"] %}
-  <a href="/media/{{items["album"]["external_urls"]["spotify"][31:]}}">{{items["album"]["name"]}}</a>
+  {% if recomendations == "" %}
+    <p class="h2inverse">login to see recomendations</p>
+  {% endif %}
   <br></br>
-  <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{items["album"]["external_urls"]["spotify"][31:]}}?utm_source=generator" width="30%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-  <br></br>
-{%endfor%}
-
+  {%for items in recomendations["tracks"] %}
+    <a href="/media/{{items["album"]["external_urls"]["spotify"][31:]}}" class="h2inverse" >{{items["album"]["name"]}}</a>
+    <br></br>
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{items["album"]["external_urls"]["spotify"][31:]}}?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    <br></br>
+  {%endfor%}
+</div>
 {% endblock %}

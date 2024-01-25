@@ -9,41 +9,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-.h2inverse{
-  background-color: #101010;
-  color: #ffffff;
 
-}
-.profile_picture{
-  float: left;
-  left-padding: 10px;
-}
-
-.column70 {
-  float: left;
-  width: 65%;
-  padding: 10px;
-}
-.column30 {
-  float: left;
-  width: 30%;
-  padding: 10px;
-}
-
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
-
-</style>
 </head>
 <body>
 
@@ -74,6 +40,19 @@ td, th {
     <h2 class="h2inverse">TOP ARTISTS:</h2>
     {% for artist in top_artists%}
       <iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/{{artist.strip()[1:-1]}}?utm_source=generator" width="19%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    {% endfor %}
+
+    <h1 class="h2inverse">REVIEWS:</h1>
+    {% for review in reviews %}
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{review.album_id}}?utm_source=generator" width="50%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    <br></br>
+    <a class="h2inverse"> view other reviews of this <a class="h2inverse" href="/media/{{review.album_id}}">album</a></a>
+
+    <p class="h2inverse">{{review.content}}</p>
+    <a class="h2inverse" href="/review/{{review.id}}">view comments</a>
+    <hr>
+
+
     {% endfor %}
 
 

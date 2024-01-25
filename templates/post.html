@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content%}
+
+<div>
+  <br></br>
+  <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{album_id}}?utm_source=generator" width="70%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  <h3 >upload review</h3>
+  <form method="POST" action="/post/{{album_id}}" enctype="multipart/form-data">
+    <div class="form-group">
+      <div align="centre">
+        <textarea class="text-area text-box multi-line" data-val="true" data-val-length="Maximum = 2045 characters" data-val-length-max="2045" id="content" name="content" cols="150" rows="40"></textarea>
+      </div>
+      <br />
+      <div>
+        <button class="btn btn-primary" type="submit">submit</button>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+
+{% endblock %}

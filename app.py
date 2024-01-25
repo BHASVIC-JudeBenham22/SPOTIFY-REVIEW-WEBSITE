@@ -21,12 +21,22 @@ class Users(db.Model):
     top_track = db.Column(db.String)
     top_artists  = db.Column(db.String)
     profile_picture = db.Column(db.String)
+    Reviews = db.relationship("Reviews")
 
 class Follows(db.Model):
     follower_user_id = db.Column(db.String, ForeignKey('users.id'), nullable=False, primary_key=True)
     followed_user_id = db.Column(db.String, ForeignKey('users.id'), nullable=False, primary_key=True)
     follower_user = db.relationship("Users", foreign_keys=[follower_user_id])
     followed_user = db.relationship("Users", foreign_keys=[followed_user_id])
+
+class Reviews(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    album_id = db.Column(db.String)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    rating = db.Column(db.Integer, nullable = False)
+    content = db.Column(db.String)
+
+
 
 db.create_all()
 
@@ -226,11 +236,12 @@ def media(media_id):
     albums = sp.artist_albums( artist, limit=3,)["items"]
     #[0]["external_urls"]["spotify"][31:]
 
+    reviews = Reviews.query.filter_by(album_id = media_id).order_by(Reviews.id)
 
 
 
 
-    return render_template("media.html", id=id, media_id=media_id, artist = artist, genres=genres, albums = albums)
+    return render_template("media.html", id=id, media_id=media_id, artist = artist, genres=genres, albums = albums, reviews = reviews)
 
 
 #profile page route, atm displays some simple user stats fetched from API
@@ -254,9 +265,10 @@ def profile(user_id):
     if id:
         following_user = Follows.query.filter_by(follower_user_id = id, followed_user_id = user_id).first()
 
+    reviews = Reviews.query.filter_by(user_id = user_id).order_by(Reviews.id)
 
 
-    return render_template("profile.html",top_track = top_track, top_artists=top_artists, followed_users=followed_users,profile_picture = profile_picture,user_id=user_id,following_user = following_user,Users=Users ,id = id)
+    return render_template("profile.html",top_track = top_track, top_artists=top_artists, followed_users=followed_users,profile_picture = profile_picture,user_id=user_id,following_user = following_user,Users=Users,reviews=reviews ,id = id)
 
 
 @app.route("/follow/<following_id>")
@@ -288,6 +300,38 @@ def follow(following_id):
 def reviews():
     id = check_login()
     return render_template("reviews.html", id = id)
+
+@app.route("/review/<review_id>")
+def review(review_id):
+    id = check_login()
+    review = Reviews.query.filter_by(id = review_id).first()
+    album_id = review.album_id
+    content = review.content
+    rating = review.rating
+    user_id = review.user_id
+
+    return render_template("review.html", id=id, content = content, rating = rating, user_id=user_id, album_id=album_id)
+
+@app.route("/post/<album_id>", methods=['GET', 'POST'])
+def post(album_id):
+    id = check_login()
+    if not id:
+        return redirect(url_for("home"))
+    if request.method == 'POST':
+        content = request.form.get("content")
+        #rating = request.form.get("rating")
+        rating = 1
+        user_id = id
+
+        new_review = Reviews(content=content, rating=rating, user_id=user_id,album_id=album_id)
+        db.session.add(new_review)
+        db.session.commit()
+        return redirect(url_for("media", media_id=album_id))
+    return render_template("post.html", album_id=album_id)
+
+    #return redirect(url_for("profile", user_id=id))
+
+
 
 
 
