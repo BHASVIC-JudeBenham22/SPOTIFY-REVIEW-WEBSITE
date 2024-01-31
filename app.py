@@ -63,9 +63,11 @@ cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
 
 SpotifyOAuthData = SpotifyOAuth(
     client_id = "c8f7544ac8de4d0fa182466d1d87f2a7",
+    #client_id = "95cb7a03a44d445a9c83024b2cb2dab0" - for repl.it
     client_secret = "61d6091fa94840b7b7383013295d471e",
+    #client_secret = "096f41ea16c545318fc53b15c50c90e4" - for repl.it
     redirect_uri = "http://127.0.0.1:5000/callback",
-    #redirect_uri = "https://7d48-81-109-105-102.ngrok-free.app/callback",
+    #redirect_uri = "https://deb5f71a-6f57-4353-a04e-1ecc10c61c0f-00-enn1nbrh9dud.riker.replit.dev/callback", - for repl.it
     scope = "user-top-read user-read-private user-read-email",
     cache_handler=cache_handler
 )
@@ -383,4 +385,6 @@ def articles():
     return render_template("articles.html", id = id)
 
 if __name__ == "__main__":
+    #app.run(debug=True, host='0.0.0.0')
+    #use above code when running in repl.it
     app.run(debug=True)
