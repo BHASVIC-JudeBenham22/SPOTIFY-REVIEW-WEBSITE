@@ -13,7 +13,14 @@
   <h1 class="h2inverse">Review:</h1>
   <h1 class="h2inverse">{{content}}</h1>
   <br></br>
+
   <h1 class="h2inverse">Comments:</h1>
+  <p class="h2inverse"> upload your own <a href="/comment/{{review_id}}">comment</a></p>
+  {% for comment in comments %}
+    <hr>
+    <p class="h2inverse">Comment by <a href="/profile/{{comment.user_id}}">{{comment.user_id}}</a></p>
+    <p class="h2inverse">{{comment.content}}</p>
+  {%endfor%}
 </div>
 
 

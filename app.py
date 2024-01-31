@@ -22,6 +22,7 @@ class Users(db.Model):
     top_artists  = db.Column(db.String)
     profile_picture = db.Column(db.String)
     Reviews = db.relationship("Reviews")
+    Comments = db.relationship("Comments")
 
 class Follows(db.Model):
     follower_user_id = db.Column(db.String, ForeignKey('users.id'), nullable=False, primary_key=True)
@@ -34,6 +35,13 @@ class Reviews(db.Model):
     album_id = db.Column(db.String)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     rating = db.Column(db.Integer, nullable = False)
+    content = db.Column(db.String)
+    Comments = db.relationship("Comments")
+
+class Comments(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    review_id = db.Column(db.Integer, db.ForeignKey("reviews.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     content = db.Column(db.String)
 
 
@@ -328,7 +336,9 @@ def review(review_id):
     rating = review.rating
     user_id = review.user_id
 
-    return render_template("review.html", id=id, content = content, rating = rating, user_id=user_id, album_id=album_id)
+    comments = Comments.query.filter_by(review_id=review_id).all()
+
+    return render_template("review.html", id=id, content = content, rating = rating, user_id=user_id, album_id=album_id, comments = comments, review_id=review_id)
 
 @app.route("/post/<album_id>", methods=['GET', 'POST'])
 def post(album_id):
@@ -349,8 +359,22 @@ def post(album_id):
 
     #return redirect(url_for("profile", user_id=id))
 
+@app.route("/comment/<review_id>", methods=['GET', 'POST'])
+def comment(review_id):
+    id = check_login()
+    review = Reviews.query.filter_by(id = review_id).first()
+    if not id or not review:
+        return redirect(url_for("home"))
+    if request.method == "POST":
+        content = request.form.get("content")
 
+        user_id = id
 
+        new_comment = Comments(content=content, user_id=user_id, review_id=review_id)
+        db.session.add(new_comment)
+        db.session.commit()
+        return redirect(url_for("review",review_id=review_id))
+    return render_template("comment.html", review_id=review_id)
 
 
 @app.route("/articles")

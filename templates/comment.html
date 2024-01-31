@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content%}
+
+<div>
+  <br></br>
+
+
+  <h3 >upload comment</h3>
+  <form method="POST" action="/comment/{{review_id}}" enctype="multipart/form-data">
+    <div class="form-group">
+      <div align="centre">
+        <textarea class="text-area text-box multi-line" data-val="true" data-val-length="Maximum = 2045 characters" data-val-length-max="2045" id="content" name="content" cols="150" rows="40"></textarea>
+      </div>
+      <br />
+      <div>
+        <button class="btn btn-primary" type="submit">submit</button>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+
+{% endblock %}
