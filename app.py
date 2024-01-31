@@ -37,6 +37,9 @@ class Reviews(db.Model):
     content = db.Column(db.String)
 
 
+#use below code if running on repl.it
+#with app.app_context():
+#  db.create_all()
 
 db.create_all()
 
@@ -51,8 +54,8 @@ cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
 
 
 SpotifyOAuthData = SpotifyOAuth(
-    client_id = "95cb7a03a44d445a9c83024b2cb2dab0",
-    client_secret = "096f41ea16c545318fc53b15c50c90e4",
+    client_id = "c8f7544ac8de4d0fa182466d1d87f2a7",
+    client_secret = "61d6091fa94840b7b7383013295d471e",
     redirect_uri = "http://127.0.0.1:5000/callback",
     #redirect_uri = "https://7d48-81-109-105-102.ngrok-free.app/callback",
     scope = "user-top-read user-read-private user-read-email",
@@ -190,8 +193,10 @@ def home():
 
         genres = sp.artist(top_artists[0])["genres"]
 
-        if genres == "":
-            genres = "pop"
+        if genres == "" or genres == []:
+            genres = ["pop"]
+        else:
+            genres = [sp.artist(top_artists[0])["genres"][0]]
         if top_artists == [] or top_artists == [""]:
             top_artists = ["06HL4z0CvFAxyc27GXpf02","3TVXtAsR1Inumwj472S9r4"]
         if top_track == [] or top_track == [""]:
@@ -299,7 +304,20 @@ def follow(following_id):
 @app.route("/reviews")
 def reviews():
     id = check_login()
-    return render_template("reviews.html", id = id)
+
+    recent_reviews = Reviews.query.order_by(Reviews.id.desc()).limit(10).all()
+    if id:
+        followed_user_ids = []
+        followed_users = Follows.query.filter_by(follower_user_id=id).all()
+        for user in followed_users:
+            followed_user_ids.append(user.followed_user_id)
+
+
+
+        followed_users_reviews = Reviews.query.filter(Reviews.user_id.in_(followed_user_ids)).order_by(Reviews.id.desc()).limit(10).all()
+
+
+    return render_template("reviews.html", id = id, recent_reviews = recent_reviews, followed_users_reviews = followed_users_reviews)
 
 @app.route("/review/<review_id>")
 def review(review_id):

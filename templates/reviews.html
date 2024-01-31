@@ -1,7 +1,33 @@
 {% extends "base.html" %}
 {% block content%}
 
-<p>reviews:</p>
 
+
+<div class = "column30" style="background-color:#aaa;">
+  <h1 class="h2inverse">Recent reviews</h1>
+  {% for review in recent_reviews %}
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{review.album_id}}?utm_source=generator" width="50%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    <br></br>
+    <a class="h2inverse"> view other reviews of this <a class="h2inverse" href="/media/{{review.album_id}}">album</a></a>
+    <br></br>
+    <a class="h2inverse">more reviews by <a class="h2inverse" href="/profile/{{review.user_id}}">{{review.user_id}}</a></a>
+    <p class="h2inverse">{{review.content}}</p>
+    <a class="h2inverse" href="/review/{{review.id}}">view comments</a>
+    <hr>
+  {% endfor %}
+</div>
+<div class = "column30" style="background-color:#aaa;">
+  <h1 class="h2inverse">Friends reviews</h1>
+  {% for review in followed_users_reviews %}
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/album/{{review.album_id}}?utm_source=generator" width="50%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    <br></br>
+    <a class="h2inverse"> view other reviews of this <a class="h2inverse" href="/media/{{review.album_id}}">album</a></a>
+    <br></br>
+    <a class="h2inverse">more reviews by <a class="h2inverse" href="/profile/{{review.user_id}}">{{review.user_id}}</a></a>
+    <p class="h2inverse">{{review.content}}</p>
+    <a class="h2inverse" href="/review/{{review.id}}">view comments</a>
+    <hr>
+  {% endfor %}
+</div>
 
 {% endblock %}
