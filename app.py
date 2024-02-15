@@ -23,6 +23,7 @@ class Users(db.Model):
     profile_picture = db.Column(db.String)
     Reviews = db.relationship("Reviews")
     Comments = db.relationship("Comments")
+    Articles = db.relationship("Articles")
 
 class Follows(db.Model):
     follower_user_id = db.Column(db.String, ForeignKey('users.id'), nullable=False, primary_key=True)
@@ -43,6 +44,14 @@ class Comments(db.Model):
     review_id = db.Column(db.Integer, db.ForeignKey("reviews.id"))
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     content = db.Column(db.String)
+
+class Articles(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    #date_created = db.Column(db.DateTime(timezone=True), default=func.now())
+    #need import datetime stuff if include above
+    content = db.Column(db.String)
+
 
 
 #use below code if running on repl.it
@@ -383,6 +392,33 @@ def comment(review_id):
 def articles():
     id = check_login()
     return render_template("articles.html", id = id)
+
+@app.route("/article/<article_id>")
+def article(article_id):
+    article = Articles.query.filter_by(id = article_id).first()
+    if article:
+        return render_template("article.html", id = id, article = article)
+    else:
+        return redirect(url_for("home"))
+
+
+@app.route("/upload_article", methods=['GET', 'POST'])
+def upload_article():
+    id = check_login()
+    if not id or not review:
+        #maybe check if user admin. if this feature is added
+        return redirect(url_for("home"))
+    if request.method == "POST":
+        content = request.form.get("content")
+        #also add uploading a photo ig this is added
+
+        user_id = id
+
+        new_article = Articles(content = content, user_id = user_id)
+        db.session.add(new_article)
+        db.session.commit()
+        return redirect(url_for("articles"))
+    return render_template("upload_article.html")
 
 if __name__ == "__main__":
     #app.run(debug=True, host='0.0.0.0')
