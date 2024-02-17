@@ -16,12 +16,15 @@
     <p>{{genre}} - </p>
   {%endfor%}
 
+  <h1 class="h2inverse">Average rating:  {{rating*"⭐"}}</h1>
+
+
   <h1 class="h2inverse">REVIEWS:</h1>
   {% for review in reviews %}
 
   <a class="h2inverse">more reviews by <a class="h2inverse" href="/profile/{{review.user_id}}">{{review.user_id}}</a></a>
   <br></br>
-
+  <p class="h2inverse">rating:  {{review.rating*"⭐"}}</p>
   <p class="h2inverse">{{review.content}}</p>
   <a class="h2inverse" href="/review/{{review.id}}">view comments</a>
   <hr>

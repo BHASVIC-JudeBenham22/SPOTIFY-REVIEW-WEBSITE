@@ -7,6 +7,9 @@
   <h3 >upload review</h3>
   <form method="POST" action="/post/{{album_id}}" enctype="multipart/form-data">
     <div class="form-group">
+      <a>rate out of 5:</a>
+      <input type="number" id="form_rating" name="form_rating" min="1" max="5">
+      <br>
       <div align="centre">
         <textarea class="text-area text-box multi-line" data-val="true" data-val-length="Maximum = 2045 characters" data-val-length-max="2045" id="content" name="content" cols="150" rows="40"></textarea>
       </div>

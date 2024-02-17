@@ -267,8 +267,18 @@ def media(media_id):
 
 
 
+    ratingslist = []
+    for review in reviews:
+        if str(review.rating).isnumeric():
+            ratingslist.append(review.rating)
+    if ratingslist == []:
+        rating = 0
+    else:
+        rating = round(sum(ratingslist)/len(ratingslist))
 
-    return render_template("media.html", id=id, media_id=media_id, artist = artist, genres=genres, albums = albums, reviews = reviews)
+
+
+    return render_template("media.html", id=id, media_id=media_id, artist = artist, genres=genres, albums = albums, reviews = reviews, rating = rating)
 
 
 #profile page route, atm displays some simple user stats fetched from API
@@ -362,8 +372,11 @@ def post(album_id):
     if request.method == 'POST':
         content = request.form.get("content")
         #rating = request.form.get("rating")
-        rating = 1
+        rating = request.form.get("form_rating")
+        if not str(rating).isnumeric():
+            rating = 0
         user_id = id
+
 
         new_review = Reviews(content=content, rating=rating, user_id=user_id,album_id=album_id)
         db.session.add(new_review)

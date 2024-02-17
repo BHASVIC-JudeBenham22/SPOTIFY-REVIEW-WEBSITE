@@ -11,6 +11,7 @@
     <a class="h2inverse"> view other reviews of this <a class="h2inverse" href="/media/{{review.album_id}}">album</a></a>
     <br></br>
     <a class="h2inverse">more reviews by <a class="h2inverse" href="/profile/{{review.user_id}}">{{review.user_id}}</a></a>
+    <p class="h2inverse">rating:  {{review.rating*"⭐"}}</p>
     <p class="h2inverse">{{review.content}}</p>
     <a class="h2inverse" href="/review/{{review.id}}">view comments</a>
     <hr>
@@ -24,6 +25,7 @@
     <a class="h2inverse"> view other reviews of this <a class="h2inverse" href="/media/{{review.album_id}}">album</a></a>
     <br></br>
     <a class="h2inverse">more reviews by <a class="h2inverse" href="/profile/{{review.user_id}}">{{review.user_id}}</a></a>
+    <p class="h2inverse">rating:  {{review.rating*"⭐"}}</p>
     <p class="h2inverse">{{review.content}}</p>
     <a class="h2inverse" href="/review/{{review.id}}">view comments</a>
     <hr>
