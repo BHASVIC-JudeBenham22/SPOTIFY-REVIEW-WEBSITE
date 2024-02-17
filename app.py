@@ -7,7 +7,8 @@ from spotipy.oauth2 import SpotifyOAuth
 from sqlalchemy.orm import relationship
 import time
 from flask_session import Session
-
+import uuid
+import os
 
 app = Flask(__name__)
 
@@ -51,6 +52,8 @@ class Articles(db.Model):
     #date_created = db.Column(db.DateTime(timezone=True), default=func.now())
     #need import datetime stuff if include above
     content = db.Column(db.String)
+    filename = db.Column(db.Text, nullable=False)
+    minetype = db.Column(db.Text, nullable=False)
 
 
 
@@ -391,7 +394,8 @@ def comment(review_id):
 @app.route("/articles")
 def articles():
     id = check_login()
-    return render_template("articles.html", id = id)
+    articles = Articles.query.order_by(Articles.id.desc()).limit(10).all()
+    return render_template("articles.html", id = id, articles = articles)
 
 @app.route("/article/<article_id>")
 def article(article_id):
@@ -410,11 +414,26 @@ def upload_article():
         return redirect(url_for("home"))
     if request.method == "POST":
         content = request.form.get("content")
-        #also add uploading a photo ig this is added
+        path = fr'{os.path.abspath(os.getcwd())}\website\static\uploads'
+        file = request.files["input"]
+        key = str(uuid.uuid1())
+        #unique key to save image by
+        if file:
+            filename = file.filename
+            try:
+                extension = filename.rsplit('.', 1)[1].lower()
+            except:
+                extension = "png"
+            #if file doesnt have an extension, defaults to png
+            filename = key + str("." + extension)
+            minetype = file.content_type.split("/")[0]
+            file.save(os.path.join(path, filename ))
+        else: filename,minetype = "",""
+        #no file is uploaded.
 
         user_id = id
 
-        new_article = Articles(content = content, user_id = user_id)
+        new_article = Articles(content = content, user_id = user_id, filename = filename, minetype = minetype)
         db.session.add(new_article)
         db.session.commit()
         return redirect(url_for("articles"))
