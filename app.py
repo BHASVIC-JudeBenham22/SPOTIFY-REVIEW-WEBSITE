@@ -428,6 +428,7 @@ def upload_article():
     if request.method == "POST":
         content = request.form.get("content")
         path = fr'{os.path.abspath(os.getcwd())}\website\static\uploads'
+        #change path for repl.it
         file = request.files["input"]
         key = str(uuid.uuid1())
         #unique key to save image by
