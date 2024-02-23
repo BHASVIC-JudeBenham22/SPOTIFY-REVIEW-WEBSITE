@@ -257,7 +257,10 @@ def media(media_id):
 
 
     #urn = f"{media_id}"
-    artist = sp.album(media_id)["artists"][0]["external_urls"]["spotify"][32:]
+    try:
+        artist = sp.album(media_id)["artists"][0]["external_urls"]["spotify"][32:]
+    except:
+        return redirect(url_for("home"))
     genres = sp.artist(artist)["genres"]
 
     albums = sp.artist_albums( artist, limit=3,)["items"]
