@@ -357,7 +357,10 @@ def reviews():
 @app.route("/review/<review_id>")
 def review(review_id):
     id = check_login()
-    review = Reviews.query.filter_by(id = review_id).first()
+    try:
+        review = Reviews.query.filter_by(id = review_id).first()
+    except:
+        return redirect(url_for("home"))
     album_id = review.album_id
     content = review.content
     rating = review.rating
