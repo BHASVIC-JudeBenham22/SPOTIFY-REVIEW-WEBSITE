@@ -383,10 +383,10 @@ def post(album_id):
             rating = 0
         user_id = id
         #below code checks if album exists
-        try:
-            artist = sp.album(media_id)["artists"][0]["external_urls"]["spotify"][32:]
-        except:
-            return redirect(url_for("home"))
+        #try:
+        #    artist = sp.album(media_id)["artists"][0]["external_urls"]["spotify"][32:]
+        #except:
+        #    return redirect(url_for("home"))
 
 
         new_review = Reviews(content=content, rating=rating, user_id=user_id,album_id=album_id)
